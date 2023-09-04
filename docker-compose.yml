@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mongodb:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  go:
+    container_name: go
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - dev_net
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app:rw,delegated
+    restart: always
+
+networks:
+  dev_net:
+    name: dev_net
+
+volumes:
+  pg_data:
