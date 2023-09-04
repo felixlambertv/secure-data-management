@@ -2,6 +2,7 @@ package model
 
 type Metadata struct {
 	Name     string `bson:"name"`
+	KeyName  string `bson:"keyName"`
 	Size     int    `bson:"size"`
 	Type     string `bson:"type"`
 	UploadAt int    `bson:"uploadAt"`

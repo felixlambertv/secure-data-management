@@ -9,5 +9,5 @@ type ErrorResponse struct {
 type SuccessResponse struct {
 	Message string `json:"message"`
 	Status  bool   `json:"status"`
-	Data    any    `json:"data"`
+	Data    any    `json:"data,omitempty"`
 }

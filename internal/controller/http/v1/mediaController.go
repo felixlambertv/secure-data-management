@@ -57,7 +57,11 @@ func (c *MediaController) UploadMedia(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"success": true})
+	context.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Success upload file",
+		Status:  true,
+		Data:    nil,
+	})
 }
 
 type Claims struct {

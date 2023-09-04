@@ -75,6 +75,7 @@ func (s *S3FileService) UploadFile(request requests.UploadFileRequest, userId st
 
 		metadata := model.Metadata{
 			Name:     originalFileName,
+			KeyName:  "uploads/" + fileName,
 			Size:     int(request.Files[0].Size),
 			UploadAt: int(time.Now().Unix()),
 			Type:     getFileExtension(f.Filename),
