@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -16,12 +17,36 @@ import (
 
 type FileService interface {
 	UploadFile(request requests.UploadFileRequest, userId string, idToken string) error
+	GetMedia(fileId string, userId string) (string, error)
 }
 
 type S3FileService struct {
 	userRepository repository.UserRepository
 	fileRepository repository.FileRepository
 	sess           *session.Session
+}
+
+func (s *S3FileService) GetMedia(fileId string, userId string) (string, error) {
+	file, err := s.fileRepository.FindById(context.Background(), fileId)
+	if err != nil {
+		return "", err
+	}
+
+	if !contains(file.Permission, userId) {
+		return "", errors.New("No permission")
+	}
+
+	s3svc := s3.New(s.sess)
+	req, _ := s3svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String("go-file-upload"),
+		Key:    aws.String(file.Metadata.KeyName),
+	})
+
+	url, err := req.Presign(30 * time.Minute)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func NewS3FileService(userRepository repository.UserRepository, fileRepository repository.FileRepository, sess *session.Session) *S3FileService {
@@ -100,4 +125,13 @@ func getFileExtension(filename string) string {
 		return parts[len(parts)-1]
 	}
 	return ""
+}
+
+func contains(arr []string, target string) bool {
+	for _, element := range arr {
+		if element == target {
+			return true
+		}
+	}
+	return false
 }

@@ -19,7 +19,33 @@ func NewMediaController(handler *gin.RouterGroup, fileService service.FileServic
 	h := handler.Group("/media").Use(middleware.TokenMiddleware)
 	{
 		h.POST("", r.UploadMedia)
+		h.GET(":id", r.GetMedia)
 	}
+}
+
+func (c *MediaController) GetMedia(context *gin.Context) {
+	id := context.Param("id")
+	token, exists := context.Get("token")
+	if !exists {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Token not found in context"})
+		return
+	}
+
+	claims := token.(*jwt.Token).Claims.(jwt.MapClaims)
+
+	media, err := c.fileService.GetMedia(id, claims["sub"].(string))
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Something wrong"})
+		return
+	}
+
+	context.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Success get media",
+		Status:  true,
+		Data: gin.H{
+			"url": media,
+		},
+	})
 }
 
 func (c *MediaController) UploadMedia(context *gin.Context) {
