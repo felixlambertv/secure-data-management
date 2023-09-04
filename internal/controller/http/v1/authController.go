@@ -25,7 +25,7 @@ func NewAuthController(handler *gin.RouterGroup, authService service.AuthService
 func (c *AuthController) register(context *gin.Context) {
 	var request requests.UserRegisterRequest
 	if err := context.ShouldBind(&request); err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "request invalid",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -35,7 +35,7 @@ func (c *AuthController) register(context *gin.Context) {
 
 	err := c.authService.Register(request)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "Fail user register",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -43,13 +43,17 @@ func (c *AuthController) register(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"success": true})
+	context.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Success Register",
+		Status:  true,
+		Data:    nil,
+	})
 }
 
 func (c *AuthController) verify(context *gin.Context) {
 	var request requests.AccountVerifyRequest
 	if err := context.ShouldBind(&request); err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "request invalid",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -59,7 +63,7 @@ func (c *AuthController) verify(context *gin.Context) {
 
 	err := c.authService.Verify(request)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "Fail verify user",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -67,13 +71,17 @@ func (c *AuthController) verify(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"success": true})
+	context.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Success verify",
+		Status:  true,
+		Data:    nil,
+	})
 }
 
 func (c *AuthController) login(context *gin.Context) {
 	var request requests.LoginRequest
 	if err := context.ShouldBind(&request); err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "request invalid",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -83,12 +91,18 @@ func (c *AuthController) login(context *gin.Context) {
 
 	data, err := c.authService.Login(request)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "Fail verify user",
 			Debug:   err,
 			Errors:  err.Error(),
 		})
 		return
 	}
-	context.JSON(http.StatusOK, data)
+	context.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Success login",
+		Status:  true,
+		Data: responses.UserLoginResponse{
+			Token: *data.AuthenticationResult.IdToken,
+		},
+	})
 }

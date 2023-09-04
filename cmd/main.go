@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,13 +14,16 @@ import (
 )
 
 func main() {
-	fmt.Println(os.Environ())
+	if err := godotenv.Load(); err != nil {
+		panic("Error loading .env file")
+	}
+
 	awsConfig := config.NewAWSConfig(
-		"ap-southeast-1",
-		"AKIAZTYI65C3DPQTNGM2",
-		"X9LyJ+0LMU8M1AaJ8tlnopE+uf6QkQ1aJDMbFSzT",
-		"ap-southeast-1_zFFMzwFGK",
-		"3u2lo7kgtuf83pf4nfiouqgcp8",
+		os.Getenv("AWS_REGION"),
+		os.Getenv("AWS_ACCESS_KEY_ID"),
+		os.Getenv("AWS_SECRET_ACCESS_KEY"),
+		os.Getenv("COGNITO_USER_POOL_ID"),
+		os.Getenv("COGNITO_CLIENT_ID"),
 	)
 
 	connectionString := "mongodb://localhost:27017"

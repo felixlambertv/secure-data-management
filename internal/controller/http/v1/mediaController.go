@@ -39,7 +39,7 @@ func (c *MediaController) UploadMedia(context *gin.Context) {
 
 	var request requests.UploadFileRequest
 	if err := context.ShouldBind(&request); err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "request invalid",
 			Debug:   err,
 			Errors:  err.Error(),
@@ -49,7 +49,7 @@ func (c *MediaController) UploadMedia(context *gin.Context) {
 
 	err := c.fileService.UploadFile(request, claims["sub"].(string), tokenString.(string))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, responses.ErrorRes{
+		context.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Message: "fail upload",
 			Debug:   err,
 			Errors:  err.Error(),
